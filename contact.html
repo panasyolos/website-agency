@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact | Panas Website Agency</title>
+    <meta
+      name="description"
+      content="Get in touch with Panas Website Agency to build a premium conversion-focused website."
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script defer src="script.js"></script>
+  </head>
+  <body>
+    <div class="grain"></div>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Panas Website Agency home">
+        <span class="brand-mark"></span>
+        <span>Panas Website Agency</span>
+      </a>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <nav id="site-nav" class="site-nav">
+        <a href="index.html">Home</a>
+        <a href="work.html">Work</a>
+        <a href="about.html">About</a>
+        <a href="contact.html" aria-current="page">Contact</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-hero section reveal">
+        <p class="eyebrow">Contact</p>
+        <h1>Start the conversation.</h1>
+        <p class="lead">Tell us what you sell and what the site needs to do better.</p>
+      </section>
+
+      <section class="section contact-layout reveal">
+        <form class="contact-form">
+          <label>
+            Name
+            <input type="text" name="name" placeholder="Your name" />
+          </label>
+          <label>
+            Email
+            <input type="email" name="email" placeholder="you@example.com" />
+          </label>
+          <label>
+            What do you currently sell?
+            <input type="text" name="current-offer" placeholder="Beats, loops, sample packs..." />
+          </label>
+          <label>
+            Message
+            <textarea name="message" rows="6" placeholder="Tell us a bit about your goals."></textarea>
+          </label>
+          <button class="button button-primary" type="submit">Book a Call</button>
+          <p class="contact-message" aria-live="polite"></p>
+        </form>
+
+        <aside class="contact-note">
+          <p class="eyebrow">Best fit</p>
+          <h2>Producers ready to scale into a real business.</h2>
+          <p>
+            If your current site feels like a placeholder, we can help turn it into something sharper, cleaner, and
+            more profitable.
+          </p>
+        </aside>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Panas Website Agency</p>
+      <p>Luxury web + copy for music producers.</p>
+    </footer>
+  </body>
+</html>
