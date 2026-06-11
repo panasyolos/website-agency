@@ -47,19 +47,39 @@ const server = http.createServer((req, res) => {
     });
     req.on('end', () => {
       try {
-        const submission = JSON.parse(body);
-        if (!submission || typeof submission !== 'object') {
+        const contentTypeHeader = (req.headers['content-type'] || '').toLowerCase();
+        const contentType = contentTypeHeader.split(';')[0].trim();
+        let submission = {};
+
+        if (contentType === 'application/json') {
+          submission = JSON.parse(body || '{}');
+        } else if (contentType === 'application/x-www-form-urlencoded') {
+          submission = Object.fromEntries(new URLSearchParams(body));
+        } else if (body.trim().startsWith('{')) {
+          submission = JSON.parse(body);
+        } else {
+          submission = Object.fromEntries(new URLSearchParams(body));
+        }
+
+        if (!submission || typeof submission !== 'object' || Array.isArray(submission)) {
           sendJson(res, 400, { success: false, error: 'Invalid submission data.' });
           return;
         }
+
+        submission.submittedAt = submission.submittedAt || new Date().toISOString();
 
         const existing = readSubmissions();
         existing.push(submission);
         writeSubmissions(existing);
 
-        sendJson(res, 201, { success: true });
+        if (contentType === 'application/json') {
+          sendJson(res, 201, { success: true });
+        } else {
+          res.writeHead(303, { Location: '/contact.html?submitted=1' });
+          res.end();
+        }
       } catch (error) {
-        sendJson(res, 400, { success: false, error: 'Invalid JSON payload.' });
+        sendJson(res, 400, { success: false, error: 'Invalid submission payload.' });
       }
     });
     return;
@@ -92,7 +112,8 @@ const server = http.createServer((req, res) => {
   res.end('Method Not Allowed');
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running at http://localhost:${PORT}`);
-  console.log('Open contact.html in your browser through the server to save submissions to file.');
+  console.log(`Server listening on port ${PORT} on all network interfaces.`);
+  console.log('Make sure the site is published using this Node server so /submit can save submissions.');
 });

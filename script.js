@@ -32,7 +32,8 @@ const contactForm = document.querySelector(".contact-form");
 
 if (contactForm) {
   const messageEl = contactForm.querySelector(".contact-message");
-  const shouldPostToServer = window.location.protocol.startsWith("http");
+  const shouldPostToServer = /^https?:$/.test(window.location.protocol);
+  const endpoint = contactForm.action || "/submit";
 
   contactForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -56,18 +57,20 @@ if (contactForm) {
 
     if (shouldPostToServer) {
       try {
-        const response = await fetch("/submit", {
+        const response = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(submission),
         });
 
         if (response.ok) {
-          feedback = "Thank you! Your message is saved to the local server file.";
+          feedback = "Thank you! Your message is saved to the server.";
         } else {
+          console.error("Server submission failed", response.status, response.statusText);
           feedback = "Thank you! Saved locally, but server storage is unavailable.";
         }
       } catch (error) {
+        console.error("Server submission error", error);
         feedback = "Thank you! Saved locally, but server storage is unavailable.";
       }
     }
