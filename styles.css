@@ -77,6 +77,14 @@ img {
   letter-spacing: 0.02em;
 }
 
+.brand-tagline {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .brand-mark {
   width: 0.8rem;
   height: 0.8rem;

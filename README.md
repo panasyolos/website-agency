@@ -40,3 +40,37 @@ Your domain `panaswebsite.agency` must point to the deployed Node app for `/subm
 ## Notes
 
 If the site is hosted on a static-only platform, the contact form will not be able to write to `submissions.json` on the server.
+
+## Email notifications
+
+To send confirmation emails to users who submit the form, configure the Node app with SMTP credentials in your deployment environment.
+
+Required environment variables:
+- `EMAIL_HOST` — your SMTP host
+- `EMAIL_PORT` — SMTP port (usually `587` or `465`)
+- `EMAIL_SECURE` — `true` for SSL/TLS, `false` otherwise
+- `EMAIL_USER` — SMTP username
+- `EMAIL_PASS` — SMTP password
+
+Optional environment variables:
+- `EMAIL_FROM` — email sender address (default: `Panas Website Agency <no-reply@panaswebsite.agency>`)
+- `BOOKING_LINK` — a booking link included in the confirmation email
+- `ADMIN_EMAIL` — optional copy recipient for each submission
+- `ADMIN_TOKEN` — token required to access the `/admin/submissions` endpoint
+
+## Admin endpoint
+
+If `ADMIN_TOKEN` is set, you can view all submissions at:
+
+```
+GET /admin/submissions?token=YOUR_ADMIN_TOKEN
+```
+
+Or with a header:
+```
+curl -H 'X-Admin-Token: YOUR_ADMIN_TOKEN' https://your-site.render.com/admin/submissions
+```
+
+Returns all submissions as JSON. Returns 403 if the token is missing or invalid.
+
+Deploy the app through Render or another Node service, and make sure these variables are set for the live site.

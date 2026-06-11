@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: panas-website-agency
+    env: node
+    buildCommand: npm install
+    startCommand: npm start

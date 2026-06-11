@@ -35,6 +35,12 @@ if (contactForm) {
   const shouldPostToServer = /^https?:$/.test(window.location.protocol);
   const endpoint = contactForm.action || "/submit";
 
+  if (!shouldPostToServer && messageEl) {
+    messageEl.textContent =
+      "This form only works when the site is hosted from a web server. Open it over http:// or https://.";
+    messageEl.classList.add("message-warning");
+  }
+
   contactForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
@@ -54,6 +60,7 @@ if (contactForm) {
     localStorage.setItem(storageKey, JSON.stringify(submissions));
 
     let feedback = "Thank you! Your message is saved locally.";
+    let statusClass = "message-success";
 
     if (shouldPostToServer) {
       try {
@@ -63,21 +70,31 @@ if (contactForm) {
           body: JSON.stringify(submission),
         });
 
-        if (response.ok) {
-          feedback = "Thank you! Your message is saved to the server.";
+        const responseJson = response.headers
+          .get("content-type")
+          ?.includes("application/json")
+          ? await response.json()
+          : null;
+
+        if (response.ok && responseJson?.success) {
+          feedback = "Thanks! We received your message and will email you to book a call.";
         } else {
-          console.error("Server submission failed", response.status, response.statusText);
-          feedback = "Thank you! Saved locally, but server storage is unavailable.";
+          const error = responseJson?.error || `${response.status} ${response.statusText}`;
+          console.error("Server submission failed", error);
+          feedback = "Thank you! Saved locally, but the server could not send the email.";
+          statusClass = "message-error";
         }
       } catch (error) {
         console.error("Server submission error", error);
-        feedback = "Thank you! Saved locally, but server storage is unavailable.";
+        feedback = "Thank you! Saved locally, but the server could not send the email.";
+        statusClass = "message-error";
       }
     }
 
     if (messageEl) {
       messageEl.textContent = feedback;
-      messageEl.classList.add("message-success");
+      messageEl.classList.remove("message-warning", "message-error", "message-success");
+      messageEl.classList.add(statusClass);
     }
 
     contactForm.reset();
