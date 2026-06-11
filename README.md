@@ -32,6 +32,9 @@ Use the following settings:
 - Start command: `npm start`
 - Node version: 18 or higher
 
+Important: do not use GitHub Pages for this custom domain if you want the Node app to handle `/submit`.
+If you previously had a `CNAME` file in the repo, remove it and update your DNS records to point to Render instead.
+
 Your domain `panaswebsite.agency` must point to the deployed Node app for `/submit` to work.
 
 ## Notes
