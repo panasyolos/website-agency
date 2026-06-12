@@ -16,6 +16,7 @@ This project is a website plus a simple Node server that saves contact form subm
 
 - Browser saves a fallback copy in `localStorage`.
 - Server saves submissions to `submissions.json` when the site is served by `server.js`.
+- In production, set `SUBMISSIONS_FILE` to a path on persistent storage, for example `/var/data/submissions.json` on Render.
 
 ## Deploying to production
 
@@ -37,6 +38,18 @@ If you previously had a `CNAME` file in the repo, remove it and update your DNS 
 
 Your domain `panaswebsite.agency` must point to the deployed Node app for `/submit` to work.
 
+### Persistent submissions on Render
+
+Render's normal app filesystem is temporary. If submissions are saved inside the deployed project folder, they can disappear after a restart or redeploy.
+
+This repo's `render.yaml` mounts a persistent disk at `/var/data` and sets:
+
+```bash
+SUBMISSIONS_FILE=/var/data/submissions.json
+```
+
+Keep that disk attached to the service so `/admin/submissions` continues to show older contact form entries.
+
 ## Notes
 
 If the site is hosted on a static-only platform, the contact form will not be able to write to `submissions.json` on the server.
@@ -57,6 +70,8 @@ Optional environment variables:
 - `BOOKING_LINK` — a booking link included in the confirmation email
 - `ADMIN_EMAIL` — optional copy recipient for each submission
 - `ADMIN_TOKEN` — token required to access the `/admin/submissions` endpoint
+
+- `SUBMISSIONS_FILE` - where server-side submissions are saved; use persistent storage in production
 
 ## Admin endpoint
 

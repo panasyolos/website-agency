@@ -5,7 +5,7 @@ const nodemailer = require('nodemailer');
 
 const PORT = process.env.PORT || 3000;
 const baseDir = __dirname;
-const submissionsFile = path.join(baseDir, 'submissions.json');
+const submissionsFile = process.env.SUBMISSIONS_FILE || path.join(baseDir, 'submissions.json');
 const bookingLink = process.env.BOOKING_LINK || 'https://calendly.com/panas-website-agency/book-call';
 const emailFrom = process.env.EMAIL_FROM || 'Panas Website Agency <no-reply@panaswebsite.agency>';
 const adminEmail = process.env.ADMIN_EMAIL;
@@ -71,6 +71,9 @@ const mimeTypes = {
 
 function readSubmissions() {
   try {
+    const submissionsDir = path.dirname(submissionsFile);
+    fs.mkdirSync(submissionsDir, { recursive: true });
+
     if (!fs.existsSync(submissionsFile)) {
       fs.writeFileSync(submissionsFile, '[]', 'utf8');
       return [];
@@ -78,13 +81,18 @@ function readSubmissions() {
     const raw = fs.readFileSync(submissionsFile, 'utf8');
     return JSON.parse(raw || '[]');
   } catch (error) {
-    console.error('Unable to read submissions.json:', error);
+    console.error(`Unable to read submissions file at ${submissionsFile}:`, error);
     return [];
   }
 }
 
 function writeSubmissions(submissions) {
-  fs.writeFileSync(submissionsFile, JSON.stringify(submissions, null, 2), 'utf8');
+  const submissionsDir = path.dirname(submissionsFile);
+  fs.mkdirSync(submissionsDir, { recursive: true });
+
+  const tempFile = `${submissionsFile}.tmp`;
+  fs.writeFileSync(tempFile, JSON.stringify(submissions, null, 2), 'utf8');
+  fs.renameSync(tempFile, submissionsFile);
 }
 
 function sendJson(res, status, payload) {
@@ -209,5 +217,6 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running at http://localhost:${PORT}`);
   console.log(`Server listening on port ${PORT} on all network interfaces.`);
+  console.log(`Saving submissions to ${submissionsFile}`);
   console.log('Make sure the site is published using this Node server so /submit can save submissions.');
 });
