@@ -32,71 +32,38 @@ const contactForm = document.querySelector(".contact-form");
 
 if (contactForm) {
   const messageEl = contactForm.querySelector(".contact-message");
-  const shouldPostToServer = /^https?:$/.test(window.location.protocol);
-  const endpoint = contactForm.action || "/submit";
+  const recipientEmail = "outreachptagency@gmail.com";
 
-  if (!shouldPostToServer && messageEl) {
-    messageEl.textContent =
-      "This form only works when the site is hosted from a web server. Open it over http:// or https://.";
-    messageEl.classList.add("message-warning");
-  }
-
-  contactForm.addEventListener("submit", async (event) => {
+  contactForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
     const formData = new FormData(contactForm);
-    const submission = {
-      name: String(formData.get("name") || ""),
-      email: String(formData.get("email") || ""),
-      currentOffer: String(formData.get("current-offer") || ""),
-      message: String(formData.get("message") || ""),
-      submittedAt: new Date().toISOString(),
-    };
+    const name = String(formData.get("name") || "").trim();
+    const email = String(formData.get("email") || "").trim();
+    const currentOffer = String(formData.get("current-offer") || "").trim();
+    const message = String(formData.get("message") || "").trim();
+    const subject = `Website inquiry from ${name || "a producer"}`;
+    const body = [
+      "Hi Panas Website Agency,",
+      "",
+      "I would like to book a call.",
+      "",
+      `Name: ${name}`,
+      `Email: ${email}`,
+      `Current offer: ${currentOffer || "Not provided"}`,
+      "",
+      "Message:",
+      message || "Not provided",
+    ].join("\n");
 
-    const storageKey = "panasContactSubmissions";
-    const existing = localStorage.getItem(storageKey);
-    const submissions = existing ? JSON.parse(existing) : [];
-    submissions.push(submission);
-    localStorage.setItem(storageKey, JSON.stringify(submissions));
-
-    let feedback = "Thank you! Your message is saved locally.";
-    let statusClass = "message-success";
-
-    if (shouldPostToServer) {
-      try {
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(submission),
-        });
-
-        const responseJson = response.headers
-          .get("content-type")
-          ?.includes("application/json")
-          ? await response.json()
-          : null;
-
-        if (response.ok && responseJson?.success) {
-          feedback = "Thanks! We received your message and will email you to book a call.";
-        } else {
-          const error = responseJson?.error || `${response.status} ${response.statusText}`;
-          console.error("Server submission failed", error);
-          feedback = "Thank you! Saved locally, but the server could not send the email.";
-          statusClass = "message-error";
-        }
-      } catch (error) {
-        console.error("Server submission error", error);
-        feedback = "Thank you! Saved locally, but the server could not send the email.";
-        statusClass = "message-error";
-      }
-    }
+    const mailtoUrl = `mailto:${recipientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
     if (messageEl) {
-      messageEl.textContent = feedback;
+      messageEl.textContent = "Opening your email app. Please press send to complete your message.";
       messageEl.classList.remove("message-warning", "message-error", "message-success");
-      messageEl.classList.add(statusClass);
+      messageEl.classList.add("message-success");
     }
 
-    contactForm.reset();
+    window.location.href = mailtoUrl;
   });
 }

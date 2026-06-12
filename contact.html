@@ -40,14 +40,14 @@
       </section>
 
       <section class="section contact-layout reveal">
-        <form class="contact-form" action="/submit" method="post">
+        <form class="contact-form" action="mailto:outreachptagency@gmail.com" method="post" enctype="text/plain">
           <label>
             Name
-            <input type="text" name="name" placeholder="Your name" />
+            <input type="text" name="name" placeholder="Your name" required />
           </label>
           <label>
             Email
-            <input type="email" name="email" placeholder="you@example.com" />
+            <input type="email" name="email" placeholder="you@example.com" required />
           </label>
           <label>
             What do you currently sell?
@@ -57,7 +57,7 @@
             Message
             <textarea name="message" rows="6" placeholder="Tell us a bit about your goals."></textarea>
           </label>
-          <button class="button button-primary" type="submit">Book a Call</button>
+          <button class="button button-primary" type="submit">Send Email</button>
           <p class="contact-message" aria-live="polite"></p>
         </form>
 
