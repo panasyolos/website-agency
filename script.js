@@ -37,6 +37,11 @@ if (contactForm) {
   contactForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
+    if (!contactForm.checkValidity()) {
+      contactForm.reportValidity();
+      return;
+    }
+
     const formData = new FormData(contactForm);
     const name = String(formData.get("name") || "").trim();
     const email = String(formData.get("email") || "").trim();
@@ -57,13 +62,19 @@ if (contactForm) {
     ].join("\n");
 
     const mailtoUrl = `mailto:${recipientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailLink = document.createElement("a");
+    mailLink.href = mailtoUrl;
+    mailLink.style.display = "none";
+    document.body.appendChild(mailLink);
 
     if (messageEl) {
-      messageEl.textContent = "Opening your email app. Please press send to complete your message.";
+      messageEl.textContent =
+        "Opening your default mail app. If nothing opens, use the email link below.";
       messageEl.classList.remove("message-warning", "message-error", "message-success");
       messageEl.classList.add("message-success");
     }
 
-    window.location.href = mailtoUrl;
+    mailLink.click();
+    mailLink.remove();
   });
 }
