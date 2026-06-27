@@ -13,6 +13,10 @@
     <meta property="og:title" content="Contact | Panas Website Agency" />
     <meta property="og:description" content="Get in touch with Panas Website Agency to build a premium conversion-focused website." />
     <meta property="og:image" content="https://panaswebsite.agency/og-image.png" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
     <script defer src="script.js"></script>
   </head>
@@ -40,7 +44,7 @@
       </section>
 
       <section class="section contact-layout reveal">
-        <form class="contact-form" action="mailto:outreachptagency@gmail.com" method="get">
+        <form class="contact-form">
           <label>
             Name
             <input type="text" name="name" placeholder="Your name" required />
@@ -57,8 +61,7 @@
             Message
             <textarea name="message" rows="6" placeholder="Tell us a bit about your goals."></textarea>
           </label>
-          <button class="button button-primary" type="submit">Send Email</button>
-          <a class="contact-email-link" href="mailto:outreachptagency@gmail.com">Email us directly</a>
+          <button class="button button-primary" type="submit">Send Message</button>
           <p class="contact-message" aria-live="polite"></p>
         </form>
 
@@ -69,13 +72,24 @@
             If your current site feels like a placeholder, we can help turn it into something sharper, cleaner, and
             more profitable.
           </p>
+          <p>
+            Pricing is scoped per project. Book a free 15-minute call and we'll figure out what you need and what it costs — no commitment required.
+          </p>
         </aside>
       </section>
     </main>
 
     <footer class="site-footer">
-      <p>Panas Website Agency</p>
-      <p>Websites that make producers look serious.</p>
+      <div>
+        <p>Panas Website Agency</p>
+        <p>Websites that make producers look serious.</p>
+      </div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <a href="index.html">Home</a>
+        <a href="work.html">Work</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
     </footer>
   </body>
 </html>

@@ -67,6 +67,8 @@ const mimeTypes = {
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.svg': 'image/svg+xml',
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm',
 };
 
 function readSubmissions() {
@@ -134,17 +136,12 @@ const server = http.createServer((req, res) => {
         writeSubmissions(existing);
 
         if (contentType === 'application/json') {
-          if (!hasEmailConfig) {
-            sendJson(res, 500, { success: false, error: 'Email service is not configured.' });
-            return;
-          }
-
-          try {
-            await sendBookingEmail(submission);
-          } catch (emailError) {
-            console.error('Email send error:', emailError);
-            sendJson(res, 500, { success: false, error: 'Submission received but email send failed.' });
-            return;
+          if (hasEmailConfig) {
+            try {
+              await sendBookingEmail(submission);
+            } catch (emailError) {
+              console.error('Email send error:', emailError);
+            }
           }
 
           sendJson(res, 201, { success: true });

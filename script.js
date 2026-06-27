@@ -32,9 +32,9 @@ const contactForm = document.querySelector(".contact-form");
 
 if (contactForm) {
   const messageEl = contactForm.querySelector(".contact-message");
-  const recipientEmail = "outreachptagency@gmail.com";
+  const submitBtn = contactForm.querySelector('[type="submit"]');
 
-  contactForm.addEventListener("submit", (event) => {
+  contactForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     if (!contactForm.checkValidity()) {
@@ -42,39 +42,40 @@ if (contactForm) {
       return;
     }
 
+    if (submitBtn) submitBtn.disabled = true;
+
     const formData = new FormData(contactForm);
-    const name = String(formData.get("name") || "").trim();
-    const email = String(formData.get("email") || "").trim();
-    const currentOffer = String(formData.get("current-offer") || "").trim();
-    const message = String(formData.get("message") || "").trim();
-    const subject = `Website inquiry from ${name || "a producer"}`;
-    const body = [
-      "Hi Panas Website Agency,",
-      "",
-      "I would like to book a call.",
-      "",
-      `Name: ${name}`,
-      `Email: ${email}`,
-      `Current offer: ${currentOffer || "Not provided"}`,
-      "",
-      "Message:",
-      message || "Not provided",
-    ].join("\n");
+    const payload = {
+      name: String(formData.get("name") || "").trim(),
+      email: String(formData.get("email") || "").trim(),
+      "current-offer": String(formData.get("current-offer") || "").trim(),
+      message: String(formData.get("message") || "").trim(),
+    };
 
-    const mailtoUrl = `mailto:${recipientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    const mailLink = document.createElement("a");
-    mailLink.href = mailtoUrl;
-    mailLink.style.display = "none";
-    document.body.appendChild(mailLink);
+    try {
+      const res = await fetch("/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    if (messageEl) {
-      messageEl.textContent =
-        "Opening your default mail app. If nothing opens, use the email link below.";
-      messageEl.classList.remove("message-warning", "message-error", "message-success");
-      messageEl.classList.add("message-success");
+      if (res.ok) {
+        if (messageEl) {
+          messageEl.textContent = "Message sent — we'll be in touch soon.";
+          messageEl.className = "contact-message message-success";
+        }
+        contactForm.reset();
+      } else {
+        throw new Error("Server error");
+      }
+    } catch {
+      if (messageEl) {
+        messageEl.textContent =
+          "Something went wrong. Email us directly at outreachptagency@gmail.com";
+        messageEl.className = "contact-message";
+      }
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
     }
-
-    mailLink.click();
-    mailLink.remove();
   });
 }
