@@ -69,6 +69,20 @@ const mimeTypes = {
   '.svg': 'image/svg+xml',
   '.mp4': 'video/mp4',
   '.webm': 'video/webm',
+  '.webp': 'image/webp',
+};
+
+const staticCacheControl = {
+  '.html': 'no-cache',
+  '.css': 'public, max-age=604800',
+  '.js': 'public, max-age=604800',
+  '.png': 'public, max-age=604800',
+  '.jpg': 'public, max-age=604800',
+  '.jpeg': 'public, max-age=604800',
+  '.svg': 'public, max-age=604800',
+  '.mp4': 'public, max-age=604800',
+  '.webm': 'public, max-age=604800',
+  '.webp': 'public, max-age=604800',
 };
 
 function readSubmissions() {
@@ -194,15 +208,56 @@ const server = http.createServer((req, res) => {
       return;
     }
 
-    fs.readFile(filePath, (error, data) => {
-      if (error) {
+    fs.stat(filePath, (statErr, stat) => {
+      if (statErr || !stat.isFile()) {
         res.writeHead(404);
         res.end('Not found');
         return;
       }
-      const contentType = mimeTypes[path.extname(filePath).toLowerCase()] || 'application/octet-stream';
-      res.writeHead(200, { 'Content-Type': contentType });
-      res.end(data);
+
+      const ext = path.extname(filePath).toLowerCase();
+      const contentType = mimeTypes[ext] || 'application/octet-stream';
+      const cacheControl = staticCacheControl[ext] || 'public, max-age=3600';
+      const isVideo = ext === '.mp4' || ext === '.webm';
+      const fileSize = stat.size;
+      const rangeHeader = req.headers.range;
+
+      if (isVideo && rangeHeader) {
+        const match = rangeHeader.match(/bytes=(\d+)-(\d*)/);
+        if (!match) {
+          res.writeHead(416, { 'Content-Range': `bytes */${fileSize}` });
+          res.end();
+          return;
+        }
+        const start = parseInt(match[1], 10);
+        const end = match[2] ? parseInt(match[2], 10) : Math.min(start + 1048576 - 1, fileSize - 1);
+
+        if (start >= fileSize || end >= fileSize || start > end) {
+          res.writeHead(416, { 'Content-Range': `bytes */${fileSize}` });
+          res.end();
+          return;
+        }
+
+        res.writeHead(206, {
+          'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+          'Accept-Ranges': 'bytes',
+          'Content-Length': end - start + 1,
+          'Content-Type': contentType,
+          'Cache-Control': cacheControl,
+        });
+        fs.createReadStream(filePath, { start, end }).pipe(res);
+      } else {
+        const headers = {
+          'Content-Type': contentType,
+          'Content-Length': fileSize,
+          'Cache-Control': cacheControl,
+        };
+        if (isVideo) {
+          headers['Accept-Ranges'] = 'bytes';
+        }
+        res.writeHead(200, headers);
+        fs.createReadStream(filePath).pipe(res);
+      }
     });
     return;
   }

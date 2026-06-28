@@ -748,6 +748,10 @@ img {
     grid-template-columns: 1fr;
   }
 
+  .hero-panel {
+    display: none;
+  }
+
   .portfolio-card-large {
     grid-column: auto;
   }
