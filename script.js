@@ -1,13 +1,3 @@
-// Load hero video only on desktop — prevents the 17 MB download on mobile
-const heroVideo = document.querySelector(".hero-video");
-if (heroVideo && window.matchMedia("(min-width: 769px)").matches) {
-  heroVideo.querySelectorAll("source[data-src]").forEach((source) => {
-    source.src = source.dataset.src;
-  });
-  heroVideo.load();
-  heroVideo.play().catch(() => {});
-}
-
 const toggle = document.querySelector(".nav-toggle");
 const nav = document.querySelector(".site-nav");
 
@@ -59,6 +49,8 @@ if (contactForm) {
       name: String(formData.get("name") || "").trim(),
       email: String(formData.get("email") || "").trim(),
       "current-offer": String(formData.get("current-offer") || "").trim(),
+      "current-site": String(formData.get("current-site") || "").trim(),
+      interest: String(formData.get("interest") || "").trim(),
       message: String(formData.get("message") || "").trim(),
     };
 

@@ -1,6 +1,14 @@
-# Panas Website Agency
+# Panas Website Agency (Clothing Brands)
 
-This project is a website plus a simple Node server that saves contact form submissions to `submissions.json`.
+This project is a website plus a simple Node server that saves contact form submissions to `submissions.json`. It mirrors the structure of the original Panas Website Agency site, repositioned around redesigning storefronts for streetwear and apparel brands instead of music producers.
+
+## Pages
+
+- `index.html` — Home
+- `work.html` — Concept mockups (no real client work yet — see comments in the file for where real screenshots go)
+- `services.html` — Pricing: Site Redesign ($500–$1,200 one-time) and Drop Page Retainer ($75–150/month)
+- `about.html` — Studio philosophy and process (discovery call → mockup → build → launch)
+- `contact.html` — Contact form
 
 ## Run locally
 
@@ -10,7 +18,9 @@ This project is a website plus a simple Node server that saves contact form subm
    npm install
    npm start
    ```
-3. Open `http://localhost:3000/contact.html` in your browser.
+3. Open `http://localhost:3000/index.html` in your browser.
+
+The contact form itself submits client-side via Formspree (see `script.js`) — the Node server's `/submit` endpoint is a secondary, progressive-enhancement path for non-JS form submissions and isn't wired into the current `contact.html` form markup.
 
 ## How submissions are saved
 
@@ -32,9 +42,6 @@ Recommended options:
 Use the following settings:
 - Start command: `npm start`
 - Node version: 18 or higher
-
-Important: do not use GitHub Pages for this custom domain if you want the Node app to handle `/submit`.
-If you previously had a `CNAME` file in the repo, remove it and update your DNS records to point to Render instead.
 
 Your domain `panaswebsite.agency` must point to the deployed Node app for `/submit` to work.
 
@@ -89,3 +96,9 @@ curl -H 'X-Admin-Token: YOUR_ADMIN_TOKEN' https://your-site.render.com/admin/sub
 Returns all submissions as JSON. Returns 403 if the token is missing or invalid.
 
 Deploy the app through Render or another Node service, and make sure these variables are set for the live site.
+
+## Still missing before this replaces the live site
+
+- `og-image.png` — the old one is producer-branded; needs a new one for the clothing-brand positioning (referenced in each page's `<meta property="og:image">`).
+- Real concept mockup screenshots on `work.html` and the homepage Work section (currently `.portfolio-empty` / `.work-preview-empty` placeholders).
+- A real hero preview image/video on `index.html` (currently a `.hero-visual` placeholder).

@@ -227,6 +227,37 @@ img {
   transform: translateY(0.1rem) scale(1.045);
 }
 
+/* Placeholder used in place of a real product screenshot/video until one exists — see hero-visual usage in index.html */
+.hero-visual {
+  width: 100%;
+  max-width: 114%;
+  aspect-ratio: 16 / 10;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  background:
+    radial-gradient(circle at top left, rgba(209, 31, 47, 0.22), transparent 32%),
+    linear-gradient(135deg, #161616, #090909 55%, #131313);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  transform: translateY(0.35rem) scale(1.035);
+  transition: transform 240ms ease;
+}
+
+.hero-panel:hover .hero-visual {
+  transform: translateY(0.1rem) scale(1.045);
+}
+
+.hero-visual span {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+}
+
 .panel-card,
 .info-card,
 .work-card,
@@ -364,6 +395,13 @@ img {
 
 .compare-card {
   padding: 1.55rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.compare-card .button {
+  margin-top: auto;
+  align-self: flex-start;
 }
 
 .compare-before {
@@ -372,6 +410,19 @@ img {
 
 .compare-after {
   border-color: rgba(209, 31, 47, 0.35);
+}
+
+/* Pricing-specific type — used inside .compare-card on services.html */
+.price-amount {
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  letter-spacing: -0.03em;
+  margin: 0.3rem 0 0.15rem;
+}
+
+.price-unit {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 1.1rem;
 }
 
 .process-list {
@@ -459,6 +510,22 @@ img {
 .work-card:hover .work-preview-live img,
 .portfolio-card:hover img {
   transform: scale(1.02);
+}
+
+/* Concept-mockup label used on placeholder preview panels — no real screenshots yet */
+.work-preview-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.work-preview-empty span {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  text-align: center;
+  padding: 1.5rem;
 }
 
 .featured-case {
@@ -678,6 +745,7 @@ img {
 }
 
 .contact-form input,
+.contact-form select,
 .contact-form textarea {
   width: 100%;
   border-radius: 16px;
@@ -699,6 +767,7 @@ img {
 }
 
 .contact-form input:focus,
+.contact-form select:focus,
 .contact-form textarea:focus {
   border-color: rgba(209, 31, 47, 0.65);
   box-shadow: 0 0 0 4px rgba(209, 31, 47, 0.08);
@@ -769,7 +838,8 @@ img {
     justify-content: stretch;
   }
 
-  .hero-video {
+  .hero-video,
+  .hero-visual {
     width: 100%;
     max-width: none;
   }
@@ -834,7 +904,8 @@ img {
     width: 100%;
   }
 
-  .hero-video {
+  .hero-video,
+  .hero-visual {
     transform: none;
   }
 

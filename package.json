@@ -1,7 +1,7 @@
 {
   "name": "panas-website-agency",
   "version": "1.0.0",
-  "description": "Panas Website Agency promotional site with server-side contact submissions.",
+  "description": "Panas Website Agency promotional site (clothing brands positioning) with server-side contact submissions.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
