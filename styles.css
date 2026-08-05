@@ -154,6 +154,13 @@ img {
   line-height: 1.75;
 }
 
+.founder-signature {
+  color: var(--muted);
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  margin-top: -0.4rem;
+}
+
 .eyebrow,
 .section-label {
   text-transform: uppercase;
@@ -196,9 +203,9 @@ img {
 }
 
 .button-secondary {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text);
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.32);
 }
 
 .hero-panel {
@@ -808,7 +815,6 @@ img {
   .hero,
   .split,
   .contact-layout,
-  .final-cta,
   .card-grid,
   .compare-grid,
   .featured-case,
@@ -817,8 +823,10 @@ img {
     grid-template-columns: 1fr;
   }
 
-  .hero-panel {
-    display: none;
+  .final-cta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.75rem;
   }
 
   .portfolio-card-large {
