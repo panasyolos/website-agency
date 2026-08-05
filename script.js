@@ -81,3 +81,106 @@ if (contactForm) {
     }
   });
 }
+
+const chatWidget = document.querySelector(".chat-widget");
+
+if (chatWidget) {
+  const chatToggle = chatWidget.querySelector(".chat-toggle");
+  const chatMessages = chatWidget.querySelector(".chat-messages");
+  const chatForm = chatWidget.querySelector(".chat-form");
+  const chatInput = chatWidget.querySelector(".chat-input");
+  const chatSend = chatWidget.querySelector(".chat-send");
+
+  const MAX_MESSAGES = 12;
+  const SESSION_KEY = "panasChatCount";
+  const conversation = [];
+
+  chatToggle.addEventListener("click", () => {
+    const isOpen = chatWidget.classList.toggle("open");
+    chatToggle.setAttribute("aria-expanded", String(isOpen));
+    if (isOpen) chatInput.focus();
+  });
+
+  function addMessage(role, text, { isHtml = false } = {}) {
+    const bubble = document.createElement("div");
+    bubble.className = `chat-message chat-message-${role}`;
+    if (isHtml) {
+      bubble.innerHTML = text;
+    } else {
+      bubble.textContent = text;
+    }
+    chatMessages.appendChild(bubble);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return bubble;
+  }
+
+  function lockChat(message) {
+    addMessage(
+      "system",
+      `${message} <a href="contact.html">Request a free 15-minute call</a>.`,
+      { isHtml: true }
+    );
+    chatInput.disabled = true;
+    chatSend.disabled = true;
+  }
+
+  function getSentCount() {
+    return Number(sessionStorage.getItem(SESSION_KEY) || 0);
+  }
+
+  if (getSentCount() >= MAX_MESSAGES) {
+    lockChat("That's the demo limit for this session — want this AI agent on your own site?");
+  }
+
+  chatForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const text = chatInput.value.trim();
+    if (!text) return;
+
+    const sentCount = getSentCount();
+    if (sentCount >= MAX_MESSAGES) return;
+
+    addMessage("user", text);
+    conversation.push({ role: "user", content: text });
+    chatInput.value = "";
+    sessionStorage.setItem(SESSION_KEY, String(sentCount + 1));
+
+    chatInput.disabled = true;
+    chatSend.disabled = true;
+    const typing = addMessage("assistant", "Typing…");
+    typing.classList.add("chat-typing");
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: conversation }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      typing.remove();
+
+      if (res.ok && data.reply) {
+        addMessage("assistant", data.reply);
+        conversation.push({ role: "assistant", content: data.reply });
+      } else {
+        addMessage(
+          "system",
+          data.error || "Something went wrong reaching the AI agent — try again in a moment."
+        );
+      }
+    } catch {
+      typing.remove();
+      addMessage("system", "Something went wrong reaching the AI agent — try again in a moment.");
+    } finally {
+      if (getSentCount() >= MAX_MESSAGES) {
+        lockChat("That's the demo limit for this session — want this AI agent on your own site?");
+      } else {
+        chatInput.disabled = false;
+        chatSend.disabled = false;
+        chatInput.focus();
+      }
+    }
+  });
+}
