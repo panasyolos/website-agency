@@ -25,7 +25,7 @@ body {
   background:
     radial-gradient(circle at top, rgba(209, 31, 47, 0.08), transparent 28%),
     linear-gradient(180deg, #050505 0%, #090909 100%);
-  font-family: Inter, "Helvetica Neue", Arial, sans-serif;
+  font-family: Satoshi, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.6;
 }
 
