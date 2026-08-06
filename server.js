@@ -10,6 +10,76 @@ const bookingLink = process.env.BOOKING_LINK || 'https://calendly.com/panas-webs
 const emailFrom = process.env.EMAIL_FROM || 'Panas Website Agency <no-reply@panaswebsite.agency>';
 const adminEmail = process.env.ADMIN_EMAIL;
 const adminToken = process.env.ADMIN_TOKEN;
+const geminiApiKey = process.env.GEMINI_API_KEY;
+
+const CHAT_SYSTEM_PROMPT =
+  "You are the AI Lead Agent widget embedded on Panas Website Agency's own site (panaswebsite.agency). " +
+  "This is a live, working demo of the exact AI chatbot product the agency sells to independent and " +
+  "family-run car dealerships. The person chatting with you is almost always a dealership owner evaluating " +
+  "whether to hire the agency, not a car buyer — this site has no real vehicle inventory, so never invent or " +
+  "pretend to list cars for sale. Your job: (1) demonstrate what the AI Lead Agent product does and how it " +
+  "would engage a car buyer on a client's site, (2) answer questions about Panas Website Agency's services — " +
+  "Dealer Site Redesign ($500-$1,200 one-time, built and live in 24 hours, first redesign done free with no " +
+  "commitment), AI Lead Agent and Lead Dashboard as add-ons priced on a call, (3) mention the founder, " +
+  "Panagiotis Thomadakis, if asked who runs the agency, and (4) when someone seems interested, encourage them " +
+  "to request a free 15-minute call via the Contact page. Keep replies short — 2 to 4 sentences, friendly, " +
+  "concrete, no filler.";
+
+const CHAT_MODEL = 'gemini-2.0-flash';
+const CHAT_MAX_HISTORY = 10;
+
+async function getChatReply(messages) {
+  if (!geminiApiKey) {
+    const err = new Error("The AI Lead Agent isn't connected yet.");
+    err.statusCode = 503;
+    throw err;
+  }
+
+  const cleaned = messages
+    .filter((m) => m && typeof m.content === 'string' && (m.role === 'user' || m.role === 'assistant'))
+    .slice(-CHAT_MAX_HISTORY);
+
+  if (cleaned.length === 0) {
+    const err = new Error('No valid message provided.');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const contents = cleaned.map((m) => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content }],
+  }));
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${CHAT_MODEL}:generateContent?key=${geminiApiKey}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents,
+      systemInstruction: { parts: [{ text: CHAT_SYSTEM_PROMPT }] },
+      generationConfig: { maxOutputTokens: 300 },
+    }),
+  });
+
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => '');
+    console.error('Gemini API error:', res.status, errBody);
+    const err = new Error('AI request failed.');
+    err.statusCode = 502;
+    throw err;
+  }
+
+  const data = await res.json();
+  const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+
+  if (!reply) {
+    const err = new Error('No reply generated.');
+    err.statusCode = 502;
+    throw err;
+  }
+
+  return reply;
+}
 
 const hasEmailConfig = Boolean(
   process.env.EMAIL_HOST &&
@@ -166,6 +236,32 @@ const server = http.createServer((req, res) => {
       } catch (error) {
         console.error('Submission processing error:', error);
         sendJson(res, 400, { success: false, error: 'Invalid submission payload.' });
+      }
+    });
+    return;
+  }
+
+  if (req.method === 'POST' && req.url === '/api/chat') {
+    let body = '';
+    req.on('data', (chunk) => {
+      body += chunk;
+    });
+    req.on('end', async () => {
+      try {
+        const parsed = JSON.parse(body || '{}');
+        const messages = Array.isArray(parsed.messages) ? parsed.messages : null;
+
+        if (!messages || messages.length === 0) {
+          sendJson(res, 400, { error: 'No message provided.' });
+          return;
+        }
+
+        const reply = await getChatReply(messages);
+        sendJson(res, 200, { reply });
+      } catch (error) {
+        const status = error.statusCode || 500;
+        console.error('Chat error:', error);
+        sendJson(res, status, { error: error.message || 'Something went wrong.' });
       }
     });
     return;
