@@ -25,7 +25,7 @@ const CHAT_SYSTEM_PROMPT =
   "to request a free 15-minute call via the Contact page. Keep replies short — 2 to 4 sentences, friendly, " +
   "concrete, no filler.";
 
-const CHAT_MODEL = 'gemini-2.0-flash';
+const CHAT_MODEL = 'gemini-1.5-flash';
 const CHAT_MAX_HISTORY = 10;
 
 async function getChatReply(messages) {
