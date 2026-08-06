@@ -11,6 +11,8 @@ const emailFrom = process.env.EMAIL_FROM || 'Panas Website Agency <no-reply@pana
 const adminEmail = process.env.ADMIN_EMAIL;
 const adminToken = process.env.ADMIN_TOKEN;
 const geminiApiKey = process.env.GEMINI_API_KEY;
+const cloudflareAccountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+const cloudflareApiToken = process.env.CLOUDFLARE_API_TOKEN;
 
 const CHAT_SYSTEM_PROMPT =
   "You are the AI Lead Agent widget embedded on Panas Website Agency's own site (panaswebsite.agency). " +
@@ -25,39 +27,59 @@ const CHAT_SYSTEM_PROMPT =
   "to request a free 15-minute call via the Contact page. Keep replies short — 2 to 4 sentences, friendly, " +
   "concrete, no filler.";
 
-const CHAT_MODEL = 'gemini-1.5-flash';
+const CLOUDFLARE_MODEL = '@cf/meta/llama-3.1-8b-instruct';
+const GEMINI_MODEL = 'gemini-2.0-flash';
 const CHAT_MAX_HISTORY = 10;
+const CHAT_MAX_TOKENS = 300;
 
-async function getChatReply(messages) {
-  if (!geminiApiKey) {
-    const err = new Error("The AI Lead Agent isn't connected yet.");
-    err.statusCode = 503;
-    throw err;
-  }
+const hasCloudflareAi = Boolean(cloudflareAccountId && cloudflareApiToken);
 
-  const cleaned = messages
+function cleanHistory(messages) {
+  return messages
     .filter((m) => m && typeof m.content === 'string' && (m.role === 'user' || m.role === 'assistant'))
     .slice(-CHAT_MAX_HISTORY);
+}
 
-  if (cleaned.length === 0) {
-    const err = new Error('No valid message provided.');
-    err.statusCode = 400;
+async function callCloudflareAi(cleaned) {
+  const url = `https://api.cloudflare.com/client/v4/accounts/${cloudflareAccountId}/ai/run/${CLOUDFLARE_MODEL}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${cloudflareApiToken}`,
+    },
+    body: JSON.stringify({
+      messages: [{ role: 'system', content: CHAT_SYSTEM_PROMPT }, ...cleaned],
+      max_tokens: CHAT_MAX_TOKENS,
+    }),
+  });
+
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => '');
+    console.error('Cloudflare AI error:', res.status, errBody);
+    const err = new Error('AI request failed.');
+    err.statusCode = 502;
     throw err;
   }
 
+  const data = await res.json();
+  return data?.result?.response?.trim();
+}
+
+async function callGemini(cleaned) {
   const contents = cleaned.map((m) => ({
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }],
   }));
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${CHAT_MODEL}:generateContent?key=${geminiApiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiApiKey}`;
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents,
       systemInstruction: { parts: [{ text: CHAT_SYSTEM_PROMPT }] },
-      generationConfig: { maxOutputTokens: 300 },
+      generationConfig: { maxOutputTokens: CHAT_MAX_TOKENS },
     }),
   });
 
@@ -70,7 +92,25 @@ async function getChatReply(messages) {
   }
 
   const data = await res.json();
-  const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+  return data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+}
+
+async function getChatReply(messages) {
+  if (!hasCloudflareAi && !geminiApiKey) {
+    const err = new Error("The AI Lead Agent isn't connected yet.");
+    err.statusCode = 503;
+    throw err;
+  }
+
+  const cleaned = cleanHistory(messages);
+
+  if (cleaned.length === 0) {
+    const err = new Error('No valid message provided.');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const reply = hasCloudflareAi ? await callCloudflareAi(cleaned) : await callGemini(cleaned);
 
   if (!reply) {
     const err = new Error('No reply generated.');
