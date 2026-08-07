@@ -363,10 +363,6 @@ img {
   gap: 1.15rem;
 }
 
-.card-grid-two {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
 .three-up .info-card,
 .work-card {
   padding: 1.45rem;
@@ -702,11 +698,17 @@ img {
   overflow: hidden;
 }
 
-/* The screens vary from 16:9 down to a wide footer strip, so the viewport
-   takes its ratio from the active slide (script.js sets aspect-ratio inline)
-   and the image is contained rather than cropped — nothing gets cut off. */
+/* The screens run from a near-square inventory grid to a wide footer strip,
+   so the viewport takes its ratio from the active slide (script.js sets
+   aspect-ratio inline) and the image is contained rather than cropped —
+   nothing gets cut off. max-height stops the tallest screens from running
+   past the viewport; those letterbox instead. */
+/* No max-height here: clamping the height of an aspect-ratio box makes Chrome
+   transfer the clamp back to the width, so the panel shrinks and sits
+   off-centre. script.js caps the ratio against the viewport height instead. */
 .slideshow-viewport {
   position: relative;
+  width: 100%;
   aspect-ratio: 16 / 9;
   background: #000;
   overflow: hidden;

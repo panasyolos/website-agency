@@ -129,7 +129,14 @@ document.querySelectorAll("[data-slideshow]").forEach((slideshow, showIndex) => 
       return;
     }
 
-    const ratio = Math.min(Math.max(img.naturalWidth / img.naturalHeight, 1.5), 4.6);
+    // Tall screens (the near-square inventory grid) would otherwise run past
+    // the fold, so raise the ratio until the box fits — the image letterboxes
+    // inside rather than the panel shrinking away from the card edges.
+    const natural = img.naturalWidth / img.naturalHeight;
+    const width = viewport.getBoundingClientRect().width;
+    const tallest = window.innerHeight * 0.78;
+    const floor = width > 0 && tallest > 0 ? width / tallest : 0.9;
+    const ratio = Math.min(Math.max(natural, floor), 4.6);
     viewport.style.aspectRatio = String(ratio);
   }
 
@@ -184,6 +191,13 @@ document.querySelectorAll("[data-slideshow]").forEach((slideshow, showIndex) => 
 
   viewport.addEventListener("pointercancel", () => {
     swipeStartX = null;
+  });
+
+  // The height cap is relative to the window, so re-measure when it changes.
+  let resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => applyRatio(slides[current]), 150);
   });
 
   goTo(current);
