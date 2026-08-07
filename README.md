@@ -10,6 +10,49 @@ This project is a website plus a simple Node server that saves contact form subm
 - `about.html` — Studio philosophy and process (discovery call → mockup → build → launch)
 - `contact.html` — Contact form
 
+## Hosting: migrating from Render to Cloudflare Pages
+
+Production currently runs on **Render** (free tier), which spins down after ~15 minutes
+idle. A cold start makes the first chat message fail — Cloudflare returns its own HTML
+error page while the origin wakes, the widget can't parse it as JSON, and the visitor
+sees the generic error. Keeping it awake with a cron ping would consume nearly the whole
+monthly instance-hour allowance, and exceeding that suspends the service outright.
+
+`functions/`, `wrangler.toml` and `build.mjs` are the Cloudflare Pages port. **Nothing is
+switched over yet — Render is still serving production.**
+
+Why Pages works here: nothing calls `/submit` or `/admin/submissions` (the contact form
+posts straight to Formspree from `script.js`), so the only server-side code in use is
+`POST /api/chat`. No filesystem, no database — just static assets plus one Function.
+
+- Static assets on Pages are unlimited and never sleep.
+- Pages Functions: 100,000 requests/day free.
+- Workers AI: 10,000 Neurons/day free — **unchanged**, the site already uses it. At roughly
+  24 neurons per message that is ~400 chat messages/day. There is no free unlimited LLM
+  inference anywhere; only the hosting constraint goes away.
+- The `[ai]` binding replaces the `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN` pair
+  `server.js` needed for its REST call.
+
+### Deploying it
+
+```bash
+npm run build          # assembles ./dist (allowlist — never ships server.js or node_modules)
+npx wrangler login     # interactive browser OAuth
+npx wrangler pages deploy
+```
+
+`npm run preview` runs it locally, but the AI binding is remote-only, so it needs
+`CLOUDFLARE_API_TOKEN` set or the dev server will not start.
+
+### Known difference from Render
+
+Pages permanently redirects `/work.html` to `/work` (308). Links still work, but every
+internal navigation takes an extra hop and the canonical URL changes. Either accept it or
+switch internal links and the `og:url` tags to extensionless before cutting DNS over.
+
+After cutover, delete `server.js`, `render.yaml`, the `nodemailer` dependency, and the
+duplicated system prompt in `functions/api/chat.js`.
+
 ## Run locally
 
 1. Install Node.js 18+.

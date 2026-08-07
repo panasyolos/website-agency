@@ -1,0 +1,17 @@
+name = "panas-website-agency"
+compatibility_date = "2026-08-07"
+pages_build_output_dir = "./dist"
+
+# Workers AI is bound natively, so no CLOUDFLARE_ACCOUNT_ID / CLOUDFLARE_API_TOKEN
+# secret is needed the way server.js required for its REST call.
+# Declared at top level for local `wrangler pages dev`, and per-environment
+# because Pages resolves production and preview separately.
+
+[ai]
+binding = "AI"
+
+[env.production.ai]
+binding = "AI"
+
+[env.preview.ai]
+binding = "AI"

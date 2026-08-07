@@ -4,7 +4,9 @@
   "description": "Panas Website Agency promotional site (clothing brands positioning) with server-side contact submissions.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "node build.mjs",
+    "preview": "wrangler pages dev"
   },
   "dependencies": {
     "nodemailer": "^6.9.4"
@@ -12,5 +14,8 @@
   "engines": {
     "node": ">=18"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^4.120.0"
+  }
 }
