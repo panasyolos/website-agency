@@ -363,6 +363,10 @@ img {
   gap: 1.15rem;
 }
 
+.card-grid-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .three-up .info-card,
 .work-card {
   padding: 1.45rem;
@@ -687,6 +691,193 @@ img {
   font-size: 0.72rem;
   text-align: center;
   padding: 2rem;
+}
+
+/* Slideshow — concept mockup walkthroughs on work.html */
+.slideshow {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* The screens vary from 16:9 down to a wide footer strip, so the viewport
+   takes its ratio from the active slide (script.js sets aspect-ratio inline)
+   and the image is contained rather than cropped — nothing gets cut off. */
+.slideshow-viewport {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.slideshow-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 420ms ease,
+    visibility 420ms ease;
+}
+
+.slideshow-slide.is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.slideshow-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Without JS every slide stacks vertically, so the mockups stay viewable */
+@media (scripting: none) {
+  .slideshow-viewport {
+    aspect-ratio: auto;
+    display: grid;
+    gap: 1px;
+  }
+
+  .slideshow-slide {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .slideshow-controls {
+    display: none;
+  }
+}
+
+.slideshow-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.9rem;
+  height: 2.9rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(7, 7, 7, 0.62);
+  backdrop-filter: blur(10px);
+  color: var(--text);
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 200ms ease,
+    background-color 200ms ease,
+    border-color 200ms ease,
+    transform 200ms ease;
+}
+
+.slideshow-nav svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.slideshow:hover .slideshow-nav,
+.slideshow-nav:focus-visible {
+  opacity: 1;
+}
+
+.slideshow-nav:hover {
+  background: var(--accent);
+  border-color: transparent;
+}
+
+.slideshow-prev {
+  left: 1rem;
+}
+
+.slideshow-next {
+  right: 1rem;
+}
+
+.slideshow-counter {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(7, 7, 7, 0.62);
+  backdrop-filter: blur(10px);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.slideshow-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1.05rem 1.25rem 1.15rem;
+  border-top: 1px solid var(--line);
+}
+
+.slideshow-caption {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.slideshow-caption strong {
+  display: block;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.slideshow-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.slideshow-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.slideshow-dot:hover {
+  border-color: rgba(209, 31, 47, 0.7);
+  transform: scale(1.2);
+}
+
+.slideshow-dot[aria-current="true"] {
+  background: var(--accent);
+  border-color: transparent;
+}
+
+.slideshow-nav:focus-visible,
+.slideshow-dot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slideshow-slide {
+    transition: none;
+  }
 }
 
 .media-card {
@@ -1095,6 +1286,17 @@ img {
     grid-template-columns: 1fr;
   }
 
+  /* Touch devices have no hover, so the arrows stay visible */
+  .slideshow-nav {
+    opacity: 1;
+  }
+
+  .slideshow-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.9rem;
+  }
+
   .site-footer {
     flex-direction: column;
     align-items: flex-start;
@@ -1141,5 +1343,23 @@ img {
 
   .final-cta .button {
     min-width: 0;
+  }
+
+  /* 2.75rem keeps the arrows at the 44px minimum touch target */
+  .slideshow-nav {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .slideshow-prev {
+    left: 0.6rem;
+  }
+
+  .slideshow-next {
+    right: 0.6rem;
+  }
+
+  .slideshow-controls {
+    padding: 1rem;
   }
 }
