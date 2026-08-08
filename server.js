@@ -40,7 +40,9 @@ const CHAT_SYSTEM_PROMPT =
   "Keep replies short — 2 to 4 sentences, friendly, concrete, no filler.";
 
 const CLOUDFLARE_MODEL = '@cf/meta/llama-3.1-8b-instruct';
-const GEMINI_MODEL = 'gemini-2.0-flash';
+// Flash-Lite carries the largest free daily request cap of the Gemini tiers,
+// which matters because it is the backstop when Cloudflare's allowance runs out.
+const GEMINI_MODEL = 'gemini-2.5-flash-lite';
 const CHAT_MAX_HISTORY = 10;
 const CHAT_MAX_TOKENS = 300;
 
@@ -122,10 +124,27 @@ async function getChatReply(messages) {
     throw err;
   }
 
-  const reply = hasCloudflareAi ? await callCloudflareAi(cleaned) : await callGemini(cleaned);
+  let reply = '';
+
+  if (hasCloudflareAi) {
+    try {
+      reply = await callCloudflareAi(cleaned);
+    } catch (error) {
+      // Most likely the daily Neuron allowance; fall through to Gemini.
+      console.error('Cloudflare AI unavailable, falling back to Gemini.');
+    }
+  }
+
+  if (!reply && geminiApiKey) {
+    try {
+      reply = await callGemini(cleaned);
+    } catch (error) {
+      console.error('Gemini unavailable.');
+    }
+  }
 
   if (!reply) {
-    const err = new Error('No reply generated.');
+    const err = new Error('AI request failed.');
     err.statusCode = 502;
     throw err;
   }

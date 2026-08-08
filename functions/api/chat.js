@@ -33,7 +33,9 @@ const CHAT_SYSTEM_PROMPT =
   "Keep replies short — 2 to 4 sentences, friendly, concrete, no filler.";
 
 const CLOUDFLARE_MODEL = "@cf/meta/llama-3.1-8b-instruct";
-const GEMINI_MODEL = "gemini-2.0-flash";
+// Flash-Lite carries the largest free daily request cap of the Gemini tiers,
+// which matters because it is the backstop when Cloudflare's allowance runs out.
+const GEMINI_MODEL = "gemini-2.5-flash-lite";
 const CHAT_MAX_HISTORY = 10;
 const CHAT_MAX_TOKENS = 300;
 

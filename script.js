@@ -266,7 +266,7 @@ if (chatWidget) {
   const chatInput = chatWidget.querySelector(".chat-input");
   const chatSend = chatWidget.querySelector(".chat-send");
 
-  const MAX_MESSAGES = 12;
+  const MAX_MESSAGES = 30;
   const SESSION_KEY = "panasChatCount";
   const conversation = [];
 
@@ -314,7 +314,11 @@ if (chatWidget) {
     if (!text) return;
 
     const sentCount = getSentCount();
-    if (sentCount >= MAX_MESSAGES) return;
+    if (sentCount >= MAX_MESSAGES) {
+      // Returning silently here reads as a dead widget — say why it stopped.
+      lockChat("That's the demo limit for this session — want this AI agent on your own site?");
+      return;
+    }
 
     addMessage("user", text);
     conversation.push({ role: "user", content: text });
