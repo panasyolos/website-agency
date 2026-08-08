@@ -87,11 +87,11 @@ img {
 }
 
 .brand-mark {
-  width: 0.8rem;
-  height: 0.8rem;
-  border-radius: 999px;
-  background: var(--accent);
-  box-shadow: 0 0 0 6px rgba(209, 31, 47, 0.12);
+  width: 2rem;
+  height: 2rem;
+  border-radius: 6px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .site-nav {
