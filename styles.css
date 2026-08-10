@@ -9,6 +9,8 @@
   --shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
   --radius: 24px;
   --content-width: 1180px;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  --clip-badge: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
 }
 
 * {
@@ -115,7 +117,7 @@ img {
   border: 1px solid var(--line);
   background: transparent;
   color: var(--text);
-  border-radius: 999px;
+  clip-path: var(--clip-badge);
   padding: 0.7rem 1rem;
 }
 
@@ -147,7 +149,7 @@ img {
   align-items: center;
   gap: 0.45rem;
   padding: 0.5rem 0.9rem;
-  border-radius: 999px;
+  clip-path: var(--clip-badge);
   border: 1px solid rgba(209, 31, 47, 0.35);
   background: rgba(209, 31, 47, 0.08);
   color: var(--text);
@@ -155,6 +157,17 @@ img {
   font-weight: 600;
   letter-spacing: 0.02em;
   margin-bottom: 1.1rem;
+  animation: badge-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes badge-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(209, 31, 47, 0.32);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(209, 31, 47, 0);
+  }
 }
 
 .final-cta .badge {
@@ -187,10 +200,22 @@ img {
 
 .eyebrow,
 .section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.08em;
+  font-family: var(--font-mono);
   font-size: 0.72rem;
+  font-weight: 500;
   color: rgba(209, 31, 47, 0.88);
+}
+
+.eyebrow::before,
+.section-label::before {
+  content: "//";
+  color: rgba(209, 31, 47, 0.55);
+  font-weight: 700;
 }
 
 .cta-row {
@@ -204,7 +229,7 @@ img {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
+  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
   padding: 0.95rem 1.4rem;
   border: 1px solid var(--line);
   font-weight: 600;
@@ -806,12 +831,13 @@ img {
   top: 1rem;
   right: 1rem;
   padding: 0.4rem 0.8rem;
-  border-radius: 999px;
+  clip-path: var(--clip-badge);
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(7, 7, 7, 0.62);
   backdrop-filter: blur(10px);
+  font-family: var(--font-mono);
   font-size: 0.74rem;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.08em;
   font-variant-numeric: tabular-nums;
   color: var(--muted);
 }
